@@ -1,6 +1,6 @@
 # echoserver
 
-A coding assignment for CY410 in MISRA C.
+A coding assignment for CY310 in MISRA C.
 
 - multiclient support
 - Timestamping
