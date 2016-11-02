@@ -6,4 +6,3 @@ A coding assignment for CY410 in MISRA C.
 - Timestamping
 - port binding on start
 - log file
-
