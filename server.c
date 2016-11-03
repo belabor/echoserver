@@ -31,7 +31,7 @@ char *timestamp() {
 }
 
 /* Writes out given message to socket */
-int write_data(int socket, char *buffer, int i) {
+int write_data(int socket, char* buffer, int i) {
   int output, total = 0;
   while (total < i) {
     output = write(socket, buffer, i - total);
@@ -61,8 +61,9 @@ int main(int argc, char **argv) {
 
   /* setup the port number */
   int portNum = 0;
-  if ( argc != 2 ) {
-    portNum = 22000; /* default to port 22000 */
+  if ( argc <= 2 ) {
+    portNum = 22000;  /* default to port 22000 */
+    print_to_console("Defaulting to port 22000\n", 25);
   } else {
     portNum = atoi(argv[1]);
   }
@@ -71,33 +72,39 @@ int main(int argc, char **argv) {
   int listen_fd = 0;
   listen_fd = socket(AF_INET, SOCK_STREAM, 0);
   if (listen_fd < 0) return -1;
+  printf("Created TCP Stream\n");
 
   /* time to make the sockets */
   struct sockaddr_in servaddr;
   memset(&servaddr, 0, sizeof(servaddr));
+  printf("Createing socket\n");
 
   servaddr.sin_family = AF_INET;
   servaddr.sin_addr.s_addr = htons(INADDR_ANY);
   servaddr.sin_port = htons((unsigned short)portNum);
+  printf("Established!\n");
 
   /* bind the socket to servaddr */
   if (bind(listen_fd, (struct sockaddr*)&servaddr, sizeof(servaddr)) < 0) {
     close(listen_fd);
-    print_to_console("Something went wrong when binding to the socket\n", 28);
+    print_to_console("Something went wrong when binding to the socket\n", 48);
     return -1;
   }
+  printf("bound to the socket\n");
 
   /* Now let's listen in.... */
   if (listen(listen_fd, 10) == -1) {
     close(listen_fd);
-    print_to_console("Something went wrong when listening to port", 43);
+    print_to_console("Something went wrong when listening to port\n", 44);
     return -1;
   }
+  printf("Listening in...\n");
 
   /* create an infinite loop as they connect */
   struct sockaddr_in peer_addr;
   socklen_t addr_len = sizeof(peer_addr);
   while(1) {
+    printf("Look (re)started\n");
     int comm_fd = accept(listen_fd, (struct sockaddr*) &peer_addr, &addr_len);
     if (comm_fd == -1) {
       error_exit("Problem with accepting connections on socket\n");
