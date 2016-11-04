@@ -4,9 +4,9 @@ A coding assignment for CY310 in MISRA C.
 
 - multiclient support
 - Timestamping
-- port binding on start
+- port binding on start (22000 default)
 - log file
 
 to do:
 
-- Remove error handler, only 1 exit point!
+- add addressing so it can connect someplace other then localhost
