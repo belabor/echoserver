@@ -2,7 +2,7 @@
 
 A coding assignment for CY310 in MISRA C.
 
-- multiclient support
+- multiclient support using fork()
 - Timestamping
 - port binding on start (22000 default)
 - log file
