@@ -6,12 +6,11 @@ A coding assignment for CY310 in MISRA C.
 - Timestamping
 - port binding on start (22000 default)
 - log file
-
-to do:
-
-- send timestamp to client as part of echo
-- AES integration
 - client identifier (rand() number + client + timestamp)
+
+To do:
+
+- AES Integration
 
 maybe later:
 
