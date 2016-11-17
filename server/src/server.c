@@ -13,7 +13,7 @@
 #define MAX_BUFF 100 /* max length of string */
 
 /* simple time stamping */
-char *timestamp() {
+char *timeStamp() {
   char *stamp = (char *)malloc(sizeof(char) * 14);
   time_t ltime = time(NULL);
   struct tm *tm;
@@ -31,6 +31,37 @@ int string_to_int(const char *str) {
     val = val * 10 + (*str++ - '0');
   }
   return val;
+}
+
+void createClientID(char *ID) {
+  memset(ID, 0, 16); /* clear out the char array first */
+
+  /* pu trandom string in front */
+  srand((unsigned int)time(NULL));
+  snprintf(ID, 5, "%d", rand() % 10000);
+
+  /* add client */
+  ID[4] ='c';
+  ID[5] ='l';
+  ID[6] ='i';
+  ID[7] ='e';
+  ID[8] ='n';
+  ID[9] ='t';
+
+  /* created abbreviated timestamp */
+  char *ats = (char *)malloc(sizeof(char) * 6);
+  time_t ltime;
+  ltime=time(NULL);
+  struct tm *tm;
+  tm=localtime(&ltime);
+
+sprintf(ats,"%02d%02d%02d", tm->tm_hour, tm->tm_min, tm->tm_sec);
+
+  /*add timestamp for connect */
+  int i=0;
+  for (i = 10; i <= 16; i++) {
+    ID[i] = ats[i-10];
+  }
 }
 
 /* Writes out given message to socket */
@@ -110,6 +141,8 @@ int main(int argc, char **argv) {
   /* create an infinite loop as they connect */
   struct sockaddr_in peer_addr;
   socklen_t addr_len = sizeof(peer_addr);
+
+
   while (1) {
     print_to_console("Loop (re)started\n", 17);
     int comm_fd = accept(listen_fd, (struct sockaddr *)&peer_addr, &addr_len);
@@ -126,8 +159,13 @@ int main(int argc, char **argv) {
     /* which process is this??? */
     if (pid == 0) {
       /* this is the child */
+
       close(listen_fd);
       char str[MAX_BUFF];
+      char *clientID = (char *)malloc(sizeof(char) * 16);
+      createClientID(clientID);
+      print_to_console(clientID, 16);
+      print_to_console(" connected.\n", 12);
       while (1) {
         /* set readLength to length of string */
         int readLength = read(comm_fd, str, MAX_BUFF);
@@ -141,12 +179,16 @@ int main(int argc, char **argv) {
           break;
         } else if (readLength > 0) {
           /* print out to console */
-          print_to_console(timestamp(), 14);
-          print_to_console(" - ", 3);
+          print_to_console(clientID, 16);
+          print_to_console("-", 1);
+          print_to_console(timeStamp(), 14);
+          print_to_console(":", 1);
           print_to_console(str, readLength);
 
           /* echo to client */
-          sentLength = write_data(comm_fd, str, readLength);
+          sentLength = write_data(comm_fd, timeStamp(), 14);
+          sentLength += write_data(comm_fd, ": ", 2);
+          sentLength += write_data(comm_fd, str, readLength);
           if (sentLength > 0) { /* Do noting, everything is ok */
           } else if (sentLength < 0) {
             print_to_console("Problem with sending to client!\n", 32);
@@ -157,7 +199,7 @@ int main(int argc, char **argv) {
           /* log to file */
           FILE *fp;
           fp = fopen("log.txt", "a");
-          fprintf(fp, "%s - %s", timestamp(), str);
+          fprintf(fp, "%s-%s: %s", clientID, timeStamp(), str);
           fclose(fp);
         }
       }
